@@ -9,7 +9,6 @@ export class AuthService {
   async validateUser(loginDto: LoginDto) {
     try {
       const response = await axios.post(`${this.userServiceUrl}/auth/validate`, loginDto);
-      console.log("response in gateway", response.data);
       return response.data;
     } catch (error) {
       return null;
