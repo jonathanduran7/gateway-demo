@@ -1,11 +1,11 @@
 import { All, UseGuards, Req, HttpStatus, HttpException, Get, Param } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { Controller } from "@nestjs/common";
-import { JwtAuthGuard } from "src/auth/jwt.strategy";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { Request } from 'express';
-import { firstValueFrom } from "rxjs";
 
 @Controller('users')
+@UseGuards(JwtAuthGuard)
 export class UsersProxy {
   constructor(private readonly http: HttpService) {}
 
@@ -35,13 +35,13 @@ export class UsersProxy {
     try {
       const targetUrl = `http://users:3000${req.originalUrl}`;
       const response = await this.http.axiosRef({
-          url: targetUrl,
-          method: req.method,
-          data: req.body,
-          headers: {
-            host: undefined,
-          },
-        })
+        url: targetUrl,
+        method: req.method,
+        data: req.body,
+        headers: {
+          host: undefined,
+        },
+      });
       
       return response.data;
     } catch (err: any) {

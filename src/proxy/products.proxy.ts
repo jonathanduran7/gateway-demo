@@ -1,9 +1,11 @@
-import { All, Req, HttpStatus, HttpException } from "@nestjs/common";
+import { All, UseGuards, Req, HttpStatus, HttpException } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { Controller } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { Request } from 'express';
 
 @Controller('products')
+@UseGuards(JwtAuthGuard)
 export class ProductsProxy {
   constructor(private readonly http: HttpService) {}
 
@@ -33,7 +35,7 @@ export class ProductsProxy {
   @All('*path')
   async forward(@Req() req: Request) {
     try {
-      const targetUrl = `http://products:3000${req.originalUrl}`;      
+      const targetUrl = `http://products:3000${req.originalUrl}`;
       const response = await this.http.axiosRef({
         url: targetUrl,
         method: req.method,
@@ -45,12 +47,10 @@ export class ProductsProxy {
       
       return response.data;
     } catch (err: any) {
-      console.error('Products proxy error:', err.message);
+      console.error('Proxy error:', err.message);
       const status = err?.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR;
       const message = err?.response?.data?.message ?? 'Error forwarding to products-service';
       throw new HttpException(message, status);
     }
   }
-
-
 } 
