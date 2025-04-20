@@ -24,7 +24,7 @@ export class OrdersController {
       throw new BadRequestException('Producto inexistente');
     }
     
-    await this.client.emit('order.created', {
+    await this.client.emit('order-created', {
       userId,
       productId: dto.productId,
       total: dto.total,
