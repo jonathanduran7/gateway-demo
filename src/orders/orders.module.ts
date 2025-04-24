@@ -12,10 +12,10 @@ import { Transport } from '@nestjs/microservices';
       transport: Transport.RMQ,
       options: {
         urls: ['amqp://admin:secret123@rabbit:5672'],
-        queue: 'orders_queue',
-        queueOptions: { durable: true },
+        queue: 'orders_queue'
       },
-    }]),
+    },  
+  ]),
   HttpModule],
   controllers: [OrdersController],
 })

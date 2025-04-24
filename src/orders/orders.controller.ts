@@ -12,22 +12,29 @@ export class OrdersController {
   ) {}
 
   @Post()
-  async create(@Req() req, @Body() dto: { productId: string; total: number }) {
+  async create(@Req() req, @Body() dto: { productId: string; quantity: number }) {
     const userId = req.user.sub;
-
+    let total = 0;
     try {
-      await this.http.axiosRef.get(
+      const product = await this.http.axiosRef.get(
         `http://products:3000/products/${dto.productId}`,
         { timeout: 3000 },
       );
+
+      if (product.data.stock < dto.quantity) {
+        throw new BadRequestException('No hay suficiente stock');
+      }
+
+      total = product.data.price * dto.quantity;
     } catch {
-      throw new BadRequestException('Producto inexistente');
+      throw new BadRequestException('No se pudo crear la orden');
     }
     
     await this.client.emit('order-created', {
       userId,
       productId: dto.productId,
-      total: dto.total,
+      total,
+      quantity: dto.quantity,
     });
 
     return { status: 'queued' }; // 202
